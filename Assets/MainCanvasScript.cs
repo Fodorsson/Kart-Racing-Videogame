@@ -11,7 +11,6 @@ public class MainCanvasScript : MonoBehaviour
     //The index of the selected button
     private int selected = 0;
 
-    // Start is called before the first frame update
     void Start()
     {
         gamePaused = false;
@@ -33,7 +32,6 @@ public class MainCanvasScript : MonoBehaviour
 
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -110,7 +108,7 @@ public class MainCanvasScript : MonoBehaviour
                 else if (selected == 2)
                 {
                     ResumeGame();
-                    SceneManager.LoadScene("MainMenu");
+                    SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
                 }
 
             }

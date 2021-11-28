@@ -10,6 +10,12 @@ public class MainMenuScript : MonoBehaviour
     //The index of the selected button
     private int selected = 0;
 
+    void Awake()
+    {
+        // Make the game run as fast as possible in Windows
+        Application.targetFrameRate = 300;
+    }
+
     void Start()
     {
         //Make the selected button's text have red colour
@@ -60,7 +66,7 @@ public class MainMenuScript : MonoBehaviour
             //If the play button is selected
             if (selected == 0)
             {
-                SceneManager.LoadScene("Game");
+                SceneManager.LoadScene("Game", LoadSceneMode.Single);
             }
             //If the options button is selected
             else if (selected == 1)

@@ -9,6 +9,8 @@ public class CamScript : MonoBehaviour
 
     public Camera cam;
 
+    float targetElevation;
+
     void Start()
     {
 
@@ -17,6 +19,22 @@ public class CamScript : MonoBehaviour
 
     void Update()
     {
+        //If the player is going down a steep slope we need to adjust the camera position so that it doesn't clip through the ground
+        float pitch = transform.rotation.eulerAngles.x;
+
+        float currentElevation = cam.transform.position.y - transform.position.y - 7.5f;
+
+        currentElevation = Mathf.Clamp(currentElevation, 0f, 16f);
+
+        if (pitch > 14f && pitch < 30f)
+            targetElevation = pitch - 14f;
+        else
+            targetElevation = 0f;
+
+        targetElevation = Mathf.Clamp(targetElevation, 0f, 16f);
+
+        float correction = Mathf.Lerp(currentElevation, targetElevation, 4f * Time.deltaTime);
+
         //The camera should only update if there is no cutscene playing
         if (!transform.GetComponent<KartControl>().CutsceneMode)
         {
@@ -27,9 +45,9 @@ public class CamScript : MonoBehaviour
             cam.transform.rotation = Quaternion.Lerp(cam.transform.rotation, camPlace.transform.rotation, lerpSpeed * Time.deltaTime);
             //Let there be a distance of 25f between the kart and the camera, and elevate the camera by 7.5f
             Vector3 negDistance = new Vector3(0.0f, 0.0f, -25f);
-            cam.transform.position = cam.transform.rotation * negDistance + transform.position + new Vector3(0f, 7.5f, 0f);
+            cam.transform.position = cam.transform.rotation * negDistance + transform.position + new Vector3(0f, 7.5f + correction, 0f);
         }
-        
+
         
     }
 }

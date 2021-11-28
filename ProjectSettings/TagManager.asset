@@ -6,6 +6,11 @@ TagManager:
   tags:
   - P1
   - P2
+  - bullet
+  - shield
+  - trap
+  - checkpoint
+  - pickup
   layers:
   - Default
   - TransparentFX
@@ -15,7 +20,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - Minimap
   - 
   - 
   - 

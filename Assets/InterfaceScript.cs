@@ -9,9 +9,18 @@ public class InterfaceScript : MonoBehaviour
     public Camera cam;
     public GameObject kartMesh;
 
+    //Declare the ListGO GameObject, which has the FindGO script attached to it
+    public GameObject ListGO;
+    public static FindGO FindGO;
+
+    private void Awake()
+    {
+        //Get the script as the component of the ListGO GameObject
+        FindGO = ListGO.GetComponent<FindGO>();
+    }
+
     void Start()
     {
-
         //Make the text transparent initially
         MessageText.color = new Color(1, 1, 1, 0);
 
@@ -20,18 +29,29 @@ public class InterfaceScript : MonoBehaviour
 
         kartMesh.transform.parent.GetComponent<KartControl>().finished = false;
 
-        //Start the cutscene
         StartCoroutine(StartCutscene(2f));
 
     }
 
     private IEnumerator StartCutscene(float duration)
     {
+        GameObject playerCanvas = transform.gameObject;
+
+        //Disable HUD elements
+        for (int i = 0; i < playerCanvas.transform.childCount; i++)
+        {
+            playerCanvas.transform.GetChild(i).gameObject.SetActive(false);
+            MessageText.gameObject.SetActive(true);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
         float startTime = Time.time;
         float endTime = startTime + duration;
 
         //The initial rotation of the camera before we start our coroutine
-        Vector3 initCamRot = cam.transform.rotation.eulerAngles;
+        //Vector3 initCamRot = cam.transform.rotation.eulerAngles;
+        Vector3 initCamRot = kartMesh.transform.rotation.eulerAngles;
 
         float MaxRotDegree = kartMesh.transform.rotation.eulerAngles.y - 180f - initCamRot.y;
 
@@ -53,6 +73,12 @@ public class InterfaceScript : MonoBehaviour
             yield return null;
         }
 
+        //Enable HUD elements
+        for (int i = 0; i < playerCanvas.transform.childCount; i++)
+        {
+            playerCanvas.transform.GetChild(i).gameObject.SetActive(true);
+        }
+
         //Call the next coroutine
         yield return StartCoroutine(Countdown("3"));
 
@@ -60,6 +86,15 @@ public class InterfaceScript : MonoBehaviour
 
     private IEnumerator FinishCutscene(float duration)
     {
+        GameObject playerCanvas = transform.gameObject;
+
+        //Disable HUD elements
+        for (int i = 0; i < playerCanvas.transform.childCount; i++)
+        {
+            playerCanvas.transform.GetChild(i).gameObject.SetActive(false);
+            MessageText.gameObject.SetActive(true);
+        }
+
         float startTime = Time.time;
         float endTime = startTime + duration;
 
@@ -187,6 +222,49 @@ public class InterfaceScript : MonoBehaviour
 
     }
 
+    public static IEnumerator HighlightChange(GameObject text, string newValue, float duration)
+    {
+        float startTime = Time.time;
+        float endTime = startTime + duration;
+
+        //The initial scale of the text
+        Vector3 initScale = text.transform.localScale;
+        Vector3 scaleAmount = text.transform.localScale / 2f;
+
+
+        while (Time.time < endTime)
+        {
+            float timePassed = Time.time - startTime;
+
+            //How much time has passed compared to the whole duration of the animation
+            float alpha = Mathf.Lerp(0f, 1f, Mathf.SmoothStep(0.0f, 1.0f, timePassed / duration));
+
+            Vector3 currentScale = initScale + scaleAmount * alpha;
+            text.transform.localScale = currentScale;
+
+            yield return null;
+        }
+
+        text.GetComponent<Text>().text = newValue;
+        
+
+        while (Time.time < endTime + duration)
+        {
+            float timePassed = Time.time - startTime;
+
+            //How much time has passed compared to the whole duration of the animation
+            float alpha = Mathf.Lerp(0f, 1f, Mathf.SmoothStep(0.0f, 1.0f, (timePassed - duration) / duration));
+
+            Vector3 currentScale = initScale + scaleAmount - scaleAmount * alpha;
+            text.transform.localScale = currentScale;
+
+            yield return null;
+        }
+
+        //Exit
+        yield return null;
+    }
+
     void Update()
     {
         if (kartMesh.transform.parent.GetComponent<KartControl>() != null && kartMesh.transform.parent.GetComponent<KartControl>().finished)
@@ -195,6 +273,51 @@ public class InterfaceScript : MonoBehaviour
             Vector3 currentPos = kartMesh.transform.position + cam.transform.forward * (-25f) + new Vector3(0f, 5.5f, 0f);
             cam.transform.position = currentPos;
         }
+
+        //Check for wrong way
+
+        //How many checkpoints are there on this track?
+        int TotalCheckpoints = FindGO.Track.GetComponent<TrackGenerator>().CheckpointPositions.Count;
+
+        //The index of the next checkpoint
+        int latestCPindex = kartMesh.transform.parent.GetComponent<KartControl>().LatestCPindex;
+
+        //The index of the previous checkpoint
+        int prevCPindex = (int)Mathf.Repeat(latestCPindex - 1, TotalCheckpoints);
+
+        //What are the coordinates for this checkpoint?
+        Vector3 CPposNext = FindGO.Track.GetComponent<TrackGenerator>().CheckpointPositions[latestCPindex];
+
+        //What are the coordinates for the previous checkpoint?
+        Vector3 CPposPrev = FindGO.Track.GetComponent<TrackGenerator>().CheckpointPositions[prevCPindex];
+
+        //Direction from previous to next checkpoint
+        Vector3 goodDir = Quaternion.LookRotation(CPposNext - CPposPrev, Vector3.up).eulerAngles;
+
+        //Orientation of the kart
+        Vector3 ori = kartMesh.transform.parent.transform.rotation.eulerAngles;
+
+        float angle = goodDir.y - ori.y;
+        if (angle < 0)
+            angle += 360;
+
+        if (angle > 115f && angle < 245f)
+        {
+            //Set the font size
+            MessageText.fontSize = 50;
+
+            //Set the MessageText to the wrong way message
+            MessageText.text = "WRONG WAY!";
+
+            //Make the colour visible
+            MessageText.color = Color.red;
+        }
+        else
+        {
+            //Make the colour invisible
+            MessageText.color = new Color(1, 1, 1, 0);
+        }
+
 
     }
 }
