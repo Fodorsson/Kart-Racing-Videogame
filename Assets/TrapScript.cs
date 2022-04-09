@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class TrapScript : MonoBehaviour
 {
-
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        GameObject other = collision.gameObject;
 
         if (other.tag == "P1" || other.tag == "P2")
         {
+            FindGO.PlaySound("sfx/18 garlic squash", 0.3f);
+
             if (!other.transform.GetComponent<KartControl>().invincible)
                 StartCoroutine(Stun(other.gameObject, 1f));
             else
@@ -29,8 +29,10 @@ public class TrapScript : MonoBehaviour
     private IEnumerator Stun(GameObject player, float duration)
     {
         //Hide the trap
+        //We need to wait with the destruction of the trap, because this script is linked to it
         transform.GetComponent<BoxCollider>().enabled = false;
-        transform.GetComponent<Renderer>().material.color = new Color(0f, 0f, 0f, 0f);
+        transform.GetChild(0).GetComponent<Renderer>().enabled = false;
+        transform.GetChild(1).GetComponent<Renderer>().enabled = false;
 
         player.transform.GetComponent<Rigidbody>().velocity = Vector3.zero;
         player.transform.GetComponent<KartControl>().stunned = true;

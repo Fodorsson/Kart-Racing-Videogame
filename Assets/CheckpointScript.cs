@@ -12,12 +12,67 @@ public class CheckpointScript : MonoBehaviour
     public GameObject ListGO;
     public static FindGO FindGO;
 
+    public static float[] P1LapStarts = new float[] { 0f, 0f, 0f, 0f };
+    public static float[] P2LapStarts = new float[] { 0f, 0f, 0f, 0f };
+    public static float[] P1LapTimes = new float[] { 0f, 0f, 0f };
+    public static float[] P2LapTimes = new float[] { 0f, 0f, 0f };
+
+    public static bool P1Won;
+
     private void Start()
     {
         ListGO = GameObject.Find("ListGO");
 
         //Get the script as the component of the ListGO GameObject
         FindGO = ListGO.GetComponent<FindGO>();
+
+        P1LapStarts = new float[] { 0f, 0f, 0f, 0f };
+        P2LapStarts = new float[] { 0f, 0f, 0f, 0f };
+        P1LapTimes = new float[] { 0f, 0f, 0f };
+        P2LapTimes = new float[] { 0f, 0f, 0f };
+    }
+
+    string ToTimeString(float time)
+    {
+        int mins = 0;
+
+        while (time - 60f > 0)
+        {
+            mins++;
+            time -= 60f;
+        }
+
+        return mins.ToString("00") + ":" + time.ToString("00.000");
+    }
+
+    private void Update()
+    {
+        if (P1LapStarts[0] > 0f)
+        {
+            float currentTime = Time.time - P1LapStarts[0];
+            //Update the lap times text
+            FindGO.P1Canvas.transform.GetChild(5).GetComponent<Text>().text = "Time " + ToTimeString(currentTime);
+            if (P1LapTimes[0] > 0f)
+                FindGO.P1Canvas.transform.GetChild(5).GetComponent<Text>().text += "\nLap 1 " + ToTimeString(P1LapTimes[0]);
+            if (P1LapTimes[1] > 0f)
+                FindGO.P1Canvas.transform.GetChild(5).GetComponent<Text>().text += "\nLap 2 " + ToTimeString(P1LapTimes[1]);
+            if (P1LapTimes[2] > 0f)
+                FindGO.P1Canvas.transform.GetChild(5).GetComponent<Text>().text += "\nLap 3 " + ToTimeString(P1LapTimes[2]);
+        }
+
+        if (P2LapStarts[0] > 0f)
+        {
+            float currentTime = Time.time - P2LapStarts[0];
+            //Update the lap times text
+            FindGO.P2Canvas.transform.GetChild(5).GetComponent<Text>().text = ToTimeString(currentTime);
+            if (P2LapTimes[0] > 0f)
+                FindGO.P2Canvas.transform.GetChild(5).GetComponent<Text>().text += "\nLap 1 " + ToTimeString(P2LapTimes[0]);
+            if (P2LapTimes[1] > 0f)
+                FindGO.P2Canvas.transform.GetChild(5).GetComponent<Text>().text += "\nLap 2 " + ToTimeString(P2LapTimes[1]);
+            if (P2LapTimes[2] > 0f)
+                FindGO.P2Canvas.transform.GetChild(5).GetComponent<Text>().text += "\nLap 3 " + ToTimeString(P2LapTimes[2]);
+        }
+
     }
 
     private void OnTriggerEnter(Collider other)
@@ -48,16 +103,23 @@ public class CheckpointScript : MonoBehaviour
                     //Then determine which player it was and display the finished message through its coroutine
                     if (other.tag == "P1")
                     {
-                        GameObject P1Canvas = FindGO.P1Canvas;
-                        P1Canvas.GetComponent<InterfaceScript>().kartMesh.transform.parent.GetComponent<KartControl>().CutsceneMode = true;
-                        StartCoroutine(P1Canvas.GetComponent<InterfaceScript>().Finish());
+                        P1LapStarts[3] = Time.time;
+                        P1LapTimes[2] = P1LapStarts[3] - P1LapStarts[2];
+                        P1Won = true;
+
+
                     }
                     else if (other.tag == "P2")
                     {
-                        GameObject P2Canvas = FindGO.P2Canvas;
-                        P2Canvas.GetComponent<InterfaceScript>().kartMesh.transform.parent.GetComponent<KartControl>().CutsceneMode = true;
-                        StartCoroutine(P2Canvas.GetComponent<InterfaceScript>().Finish());
+                        P2LapStarts[3] = Time.time;
+                        P2LapTimes[2] = P2LapStarts[3] - P2LapStarts[2];
+                        P1Won = false;
+
                     }
+                    FindGO.P1Canvas.GetComponent<InterfaceScript>().kartMesh.transform.parent.GetComponent<KartControl>().CutsceneMode = true;
+                    FindGO.P2Canvas.GetComponent<InterfaceScript>().kartMesh.transform.parent.GetComponent<KartControl>().CutsceneMode = true;
+                    StartCoroutine(FindGO.P1Canvas.GetComponent<InterfaceScript>().Finish());
+                    StartCoroutine(FindGO.P2Canvas.GetComponent<InterfaceScript>().Finish());
 
                 }
                 //If it's the player's second time crossing the finish line, update the lap count text accordingly
@@ -65,17 +127,27 @@ public class CheckpointScript : MonoBehaviour
                 {
                     if (other.tag == "P1")
                     {
+                        P1LapStarts[2] = Time.time;
+                        P1LapTimes[1] = P1LapStarts[2] - P1LapStarts[1];
+
+
                         GameObject P1Canvas = FindGO.P1Canvas;
                         Text LapCountText = P1Canvas.transform.GetChild(2).gameObject.GetComponent<Text>();
-                        GameObject.Find("P1 Avatar").GetComponent<KartControl>().currentLap = 3;
-                        StartCoroutine(InterfaceScript.HighlightChange(LapCountText.gameObject, "Lap 3/3", 0.3f));
+                        FindGO.P1Avatar.GetComponent<KartControl>().currentLap = 3;
+                        FindGO.PlaySound("sfx/22 lapcomplete", 0.2f);
+                        StartCoroutine(InterfaceScript.HighlightChange(LapCountText.gameObject, "3/3", 0.3f));
                     }
                     else if (other.tag == "P2")
                     {
+                        P2LapStarts[2] = Time.time;
+                        P2LapTimes[1] = P2LapStarts[2] - P2LapStarts[1];
+
+
                         GameObject P2Canvas = FindGO.P2Canvas;
                         Text LapCountText = P2Canvas.transform.GetChild(2).gameObject.GetComponent<Text>();
-                        GameObject.Find("P2 Avatar").GetComponent<KartControl>().currentLap = 3;
-                        StartCoroutine(InterfaceScript.HighlightChange(LapCountText.gameObject, "Lap 3/3", 0.3f));
+                        FindGO.P2Avatar.GetComponent<KartControl>().currentLap = 3;
+                        FindGO.PlaySound("sfx/22 lapcomplete", 0.2f);
+                        StartCoroutine(InterfaceScript.HighlightChange(LapCountText.gameObject, "3/3", 0.3f));
                     }
                 }
                 //If it's the player's first time crossing the finish line, update the lap count text accordingly
@@ -83,18 +155,38 @@ public class CheckpointScript : MonoBehaviour
                 {
                     if (other.tag == "P1")
                     {
+                        P1LapStarts[1] = Time.time;
+                        P1LapTimes[0] = P1LapStarts[1] - P1LapStarts[0];
+
                         GameObject P1Canvas = FindGO.P1Canvas;
                         Text LapCountText = P1Canvas.transform.GetChild(2).gameObject.GetComponent<Text>();
-                        GameObject.Find("P1 Avatar").GetComponent<KartControl>().currentLap = 2;
-                        StartCoroutine(InterfaceScript.HighlightChange(LapCountText.gameObject, "Lap 2/3", 0.3f));
+                        FindGO.P1Avatar.GetComponent<KartControl>().currentLap = 2;
+                        FindGO.PlaySound("sfx/22 lapcomplete", 0.2f);
+                        StartCoroutine(InterfaceScript.HighlightChange(LapCountText.gameObject, "2/3", 0.3f));
                     }
                     else if (other.tag == "P2")
                     {
+                        P2LapStarts[1] = Time.time;
+                        P2LapTimes[0] = P2LapStarts[1] - P2LapStarts[0];
+
                         GameObject P2Canvas = FindGO.P2Canvas;
                         Text LapCountText = P2Canvas.transform.GetChild(2).gameObject.GetComponent<Text>();
-                        GameObject.Find("P2 Avatar").GetComponent<KartControl>().currentLap = 2;
-                        StartCoroutine(InterfaceScript.HighlightChange(LapCountText.gameObject, "Lap 2/3", 0.3f));
+                        FindGO.P2Avatar.GetComponent<KartControl>().currentLap = 2;
+                        FindGO.PlaySound("sfx/22 lapcomplete", 0.2f);
+                        StartCoroutine(InterfaceScript.HighlightChange(LapCountText.gameObject, "2/3", 0.3f));
                     }
+                }
+                else if (ClearedCheckpoints == 0)
+                {
+                    if (other.tag == "P1")
+                    {
+                        P1LapStarts[0] = Time.time;
+                    }
+                    else if (other.tag == "P2")
+                    {
+                        P2LapStarts[0] = Time.time;
+                    }
+
                 }
 
             }

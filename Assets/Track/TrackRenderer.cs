@@ -8,7 +8,6 @@ public class TrackRenderer : MonoBehaviour
     private static List<int> RoadTriangles;
     private static List<Vector2> RoadUVs;
 
-    private static int T = 3;
     private static List<int> first, second, third = new List<int>();
 
     private static List<Vector3> WallVertices;
@@ -74,22 +73,22 @@ public class TrackRenderer : MonoBehaviour
             RoadTriangles.Add(i + 1);
             RoadTriangles.Add(i + 3);
 
-             RoadTriangles.Add(i + 3);
-             RoadTriangles.Add(i + 1);
-             RoadTriangles.Add(i + 4);
+            RoadTriangles.Add(i + 3);
+            RoadTriangles.Add(i + 1);
+            RoadTriangles.Add(i + 4);
 
-             RoadTriangles.Add(i + 1);
-             RoadTriangles.Add(i + 2);
-             RoadTriangles.Add(i + 4);
+            RoadTriangles.Add(i + 1);
+            RoadTriangles.Add(i + 2);
+            RoadTriangles.Add(i + 4);
 
-             RoadTriangles.Add(i + 4);
-             RoadTriangles.Add(i + 2);
-             RoadTriangles.Add(i + 5);
+            RoadTriangles.Add(i + 4);
+            RoadTriangles.Add(i + 2);
+            RoadTriangles.Add(i + 5);
         }
 
         //UVS
         RoadUVs = new List<Vector2>();
-        
+
         for (int i = 0; i < RoadVertices.Count / 6; i++)
         {
 
@@ -128,7 +127,7 @@ public class TrackRenderer : MonoBehaviour
         Track.AddComponent<MeshCollider>();
 
         //GetComponent<MeshRenderer>().material = new Material(Shader.Find("Diffuse"));
-        Track.GetComponent<MeshRenderer>().material = Resources.Load("checkerboard-pattern", typeof(Material)) as Material;
+        Track.GetComponent<MeshRenderer>().material = Resources.Load("MatGround", typeof(Material)) as Material;
 
         RoadMesh = new Mesh();
 
@@ -195,28 +194,28 @@ public class TrackRenderer : MonoBehaviour
             float sectEnd = sectStart + TrackGenerator.distances[i];
 
             //RIGHT SIDE NEARER BOTTOM VERTEX
-            WallUVs.Add(new Vector2(0f, sectEnd));
+            WallUVs.Add(new Vector2(sectStart, 0f));
 
             //RIGHT SIDE NEARER TOP VERTEX
-            WallUVs.Add(new Vector2(1f, sectEnd));
+            WallUVs.Add(new Vector2(sectStart, 1f));
 
             //LEFT SIDE NEARER BOTTOM VERTEX
-            WallUVs.Add(new Vector2(0f, sectStart));
+            WallUVs.Add(new Vector2(sectEnd, 0f));
 
             //LEFT SIDE NEARER TOP VERTEX
-            WallUVs.Add(new Vector2(1f, sectStart));
+            WallUVs.Add(new Vector2(sectEnd, 1f));
 
             //LEFT SIDE FARTHER BOTTOM VERTEX
-            WallUVs.Add(new Vector2(0f, sectStart));
+            WallUVs.Add(new Vector2(sectStart, 0f));
 
             //LEFT SIDE FARTHER TOP VERTEX
-            WallUVs.Add(new Vector2(1f, sectStart));
+            WallUVs.Add(new Vector2(sectStart, 1f));
 
             //RIGHT SIDE FARTHER BOTTOM VERTEX
-            WallUVs.Add(new Vector2(0f, sectEnd));
+            WallUVs.Add(new Vector2(sectEnd, 0f));
 
             //RIGHT SIDE FARTHER TOP VERTEX
-            WallUVs.Add(new Vector2(1f, sectEnd));
+            WallUVs.Add(new Vector2(sectEnd, 1f));
 
         }
 
@@ -231,7 +230,8 @@ public class TrackRenderer : MonoBehaviour
         Walls.AddComponent<MeshCollider>();
 
         //GetComponent<MeshRenderer>().material = new Material(Shader.Find("Diffuse"));
-        Walls.GetComponent<MeshRenderer>().material = Resources.Load("checkerboard-pattern", typeof(Material)) as Material;
+        Walls.GetComponent<MeshRenderer>().material = Resources.Load("MatWalls", typeof(Material)) as Material;
+        //Walls.GetComponent<MeshRenderer>().material.mainTexture = Resources.Load("tex_fence1", typeof(Texture)) as Texture;
 
         Mesh WallMesh = new Mesh();
 
@@ -257,6 +257,6 @@ public class TrackRenderer : MonoBehaviour
 
     }
 
-    
+
 
 }

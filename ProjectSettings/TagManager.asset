@@ -11,6 +11,8 @@ TagManager:
   - trap
   - checkpoint
   - pickup
+  - ground
+  - wall
   layers:
   - Default
   - TransparentFX
@@ -21,8 +23,8 @@ TagManager:
   - 
   - 
   - Minimap
-  - 
-  - 
+  - Glow
+  - Post Processing
   - 
   - 
   - 

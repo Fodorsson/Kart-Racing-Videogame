@@ -11,6 +11,16 @@ public class MainCanvasScript : MonoBehaviour
     //The index of the selected button
     private int selected = 0;
 
+    void Awake()
+    {
+        //Change every text in the scene onto the chosen font
+        foreach (Text item in Resources.FindObjectsOfTypeAll(typeof(Text)) as Text[])
+        {
+            item.font = Resources.Load("Phantom Fingers", typeof(Font)) as Font;
+            item.fontSize /= 2;
+        }
+    }
+
     void Start()
     {
         gamePaused = false;
@@ -51,7 +61,7 @@ public class MainCanvasScript : MonoBehaviour
             {
                 ResumeGame();
             }
-            
+
         }
 
         if (gamePaused)
@@ -66,7 +76,7 @@ public class MainCanvasScript : MonoBehaviour
                 selected--;
 
                 //Keep it inside 1-3
-                selected = (int)Mathf.Repeat(selected, 3);
+                selected = (int)Mathf.Repeat(selected, 2);
 
                 //Make the selected button's text have red colour
                 transform.GetChild(selected + 1).GetComponent<Text>().color = Color.red;
@@ -84,7 +94,7 @@ public class MainCanvasScript : MonoBehaviour
                 selected++;
 
                 //Keep it inside 0-2
-                selected = (int)Mathf.Repeat(selected, 3);
+                selected = (int)Mathf.Repeat(selected, 2);
 
                 //Make the selected button's text have red colour
                 transform.GetChild(selected + 1).GetComponent<Text>().color = Color.red;
@@ -100,12 +110,8 @@ public class MainCanvasScript : MonoBehaviour
                 {
                     ResumeGame();
                 }
-                //If the options button is selected
-                else if (selected == 1)
-                {
-                }
                 //If the quit button is selected
-                else if (selected == 2)
+                else if (selected == 1)
                 {
                     ResumeGame();
                     SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
@@ -131,7 +137,7 @@ public class MainCanvasScript : MonoBehaviour
 
 
         gamePaused = false;
-        Time.timeScale = 0.75f;
+        Time.timeScale = 1f;
 
         for (int i = 0; i < transform.childCount; i++)
         {

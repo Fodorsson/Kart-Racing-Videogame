@@ -8,7 +8,7 @@ public class PositionUpdater : MonoBehaviour
     public GameObject P1;
     public GameObject P2;
 
-    Text P1PosText; 
+    Text P1PosText;
     Text P2PosText;
 
     int P1CheckpointsCleared;
@@ -41,8 +41,6 @@ public class PositionUpdater : MonoBehaviour
         //If the first player has cleared more checkpoints
         if (P1CheckpointsCleared > P2CheckpointsCleared)
         {
-            //        P1PosText.text = "1st";
-            //        P2PosText.text = "2nd";
             if (firsttext != "P1")
             {
                 firsttext = "P1";
@@ -50,14 +48,14 @@ public class PositionUpdater : MonoBehaviour
                 StartCoroutine(InterfaceScript.HighlightChange(P1PosText.gameObject, "1st", 0.3f));
                 StartCoroutine(InterfaceScript.HighlightChange(P2PosText.gameObject, "2nd", 0.3f));
             }
-            
+
 
         }
         //If the second player as cleared more checkpoints
         else if (P2CheckpointsCleared > P1CheckpointsCleared)
         {
 
-            if(firsttext != "P2")
+            if (firsttext != "P2")
             {
                 firsttext = "P2";
 
@@ -71,7 +69,7 @@ public class PositionUpdater : MonoBehaviour
             //How many checkpoints are there on this track?
             int TotalCheckpoints = FindGO.Track.GetComponent<TrackGenerator>().CheckpointPositions.Count;
 
-            
+
             //The index of the next checkpoint
             int closestCPindex = (int)Mathf.Repeat(P1CheckpointsCleared, TotalCheckpoints);
 
